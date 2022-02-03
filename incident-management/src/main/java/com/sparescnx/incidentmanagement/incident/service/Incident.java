@@ -27,6 +27,7 @@ public class Incident {
     private String assignedTo;
     private LocalDateTime acknowledgedAt;
     private IncidentStatus status;
+    private IncidentType type;
 
 }
 

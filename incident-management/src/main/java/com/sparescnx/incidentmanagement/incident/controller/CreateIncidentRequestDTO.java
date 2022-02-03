@@ -1,6 +1,5 @@
 package com.sparescnx.incidentmanagement.incident.controller;
 
-import com.sparescnx.incidentmanagement.incident.service.IncidentType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +8,6 @@ import lombok.Setter;
 public class CreateIncidentRequestDTO {
 
     private String description;
-    private IncidentType incidentType;
+    private String incidentType;
 
 }

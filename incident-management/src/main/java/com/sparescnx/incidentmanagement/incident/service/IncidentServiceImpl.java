@@ -5,6 +5,7 @@ import com.sparescnx.incidentmanagement.incident.controller.SearchFilter;
 import com.sparescnx.incidentmanagement.incident.controller.UpdateIncidentRequestDTO;
 import com.sparescnx.incidentmanagement.incident.repo.IncidentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -70,6 +71,10 @@ public class IncidentServiceImpl implements IncidentService {
     }
 
     public List<Incident> search(SearchFilter filter) {
+        if (filter.getFilterBy() == null && filter.getCreatedDate() == null) {
+            return incidentRepo.findByStatusNot(IncidentStatus.DELETED, Sort.by("updatedAt", "createdAt"));
+        }
+        // Todo - logic should be enhanced to accommodate sort , filter
         String[] sortBy = filter.getSortBy();
         //construct order by ,
         // loop each item ,

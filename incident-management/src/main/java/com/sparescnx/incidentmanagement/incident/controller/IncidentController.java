@@ -2,6 +2,7 @@ package com.sparescnx.incidentmanagement.incident.controller;
 
 import com.sparescnx.incidentmanagement.incident.service.Incident;
 import com.sparescnx.incidentmanagement.incident.service.IncidentService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,12 +13,12 @@ import java.util.List;
 import java.util.Optional;
 
 class EndpointPaths {
-    public static final String INCIDENTS1 = "incidents";
-    public static final String INCIDENTS2 = "incidents/";
+    public static final String INCIDENTS = "incidents";
 }
 
+@Slf4j
 @RestController
-@RequestMapping(path = {EndpointPaths.INCIDENTS1, EndpointPaths.INCIDENTS2})
+@RequestMapping(path = {EndpointPaths.INCIDENTS})
 public class IncidentController {
 
     @Autowired
@@ -29,10 +30,13 @@ public class IncidentController {
     @GetMapping("/{id}")
     public ResponseEntity<Incident> get(@PathVariable String id) {
         Optional<Incident> incident = incidentService.findById(id);
-        return incident.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return incident.map(ResponseEntity::ok).orElseGet(() -> {
+            log.info("item {} not found ", id);
+            return ResponseEntity.notFound().build();
+        });
     }
 
-    @GetMapping("/search")
+    @GetMapping
     public ResponseEntity<List<Incident>> search(SearchFilter filter) {
         List<Incident> incidents = incidentService.search(filter);
         if (incidents.isEmpty()) {
@@ -45,7 +49,7 @@ public class IncidentController {
     public ResponseEntity<ResponseDTO> create(@RequestBody CreateIncidentRequestDTO incidentRequestDTO) {
         Incident incident = createRequestMapper.map(incidentRequestDTO);
         String id = incidentService.create(incident);
-        URI location = UriComponentsBuilder.newInstance().replacePath(EndpointPaths.INCIDENTS1 + "/{id}").buildAndExpand(id).toUri();
+        URI location = UriComponentsBuilder.newInstance().replacePath(EndpointPaths.INCIDENTS + "/{id}").buildAndExpand(id).toUri();
         return ResponseEntity.created(location).body(ResponseDTO.builder()
                 .id(id).title("created").build());
     }
@@ -57,7 +61,7 @@ public class IncidentController {
         return ResponseEntity.ok(incidents.getId());
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity delete(@PathVariable String id) {
         incidentService.delete(id);
         return ResponseEntity.noContent().build();
